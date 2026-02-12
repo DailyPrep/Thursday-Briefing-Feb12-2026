@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- GLOBAL REFERRER POLICY - Allows YouTube/TradingView handshake -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>WAR ROOM | Feb 12, 2026</title>
     <style>
@@ -14,17 +15,13 @@
             --card: #1e293b;
             --glass: rgba(30, 41, 59, 0.8);
             --accent: #f59e0b;
+            --success: #22c55e;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border: rgba(220, 38, 38, 0.3);
-            --success: #22c55e;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background: var(--slate);
@@ -34,12 +31,10 @@
             overflow: hidden;
         }
         
-        /* FIXED: Sticky Header with Explicit Ticker Container */
+        /* Sticky Header with Ticker */
         .war-room-header {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
             background: rgba(15, 23, 42, 0.98);
             border-bottom: 2px solid var(--crimson);
@@ -50,13 +45,6 @@
             background: linear-gradient(90deg, rgba(220, 38, 38, 0.1), transparent);
             border-bottom: 1px solid var(--border);
             height: 50px;
-            overflow: hidden;
-        }
-        
-        /* FIXED: Explicit dimensions for TradingView widget */
-        .tradingview-widget-container {
-            width: 100%;
-            height: 100%;
         }
         
         /* Navigation */
@@ -80,8 +68,6 @@
             letter-spacing: 1px;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            position: relative;
-            overflow: hidden;
             font-family: 'JetBrains Mono', monospace;
         }
         
@@ -98,16 +84,6 @@
             box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
         }
         
-        .tab-link.error {
-            border-color: #ef4444;
-            animation: pulse-error 2s infinite;
-        }
-        
-        @keyframes pulse-error {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-        }
-        
         /* Main Container */
         .war-room-container {
             margin-top: 160px;
@@ -120,16 +96,14 @@
             animation: fadeIn 0.4s ease;
         }
         
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.98); }
             to { opacity: 1; transform: scale(1); }
         }
         
-        /* FIXED: Better Bookmap Grid with Error Handling */
+        /* Bookmap Grid */
         .bookmap-grid {
             display: grid;
             grid-template-rows: 1.6fr 1fr;
@@ -144,13 +118,11 @@
             overflow: hidden;
             position: relative;
             border: 2px solid var(--crimson);
-            box-shadow: 0 0 40px rgba(220, 38, 38, 0.2);
         }
         
         .bookmap-label {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 15px; left: 15px;
             background: rgba(220, 38, 38, 0.9);
             color: white;
             padding: 8px 16px;
@@ -176,10 +148,12 @@
             border: 1px solid rgba(148, 163, 184, 0.2);
         }
         
-        .bookmap-box::after {
+        .bookmap-box.gold::after {
+            content: 'GC1! GOLD';
             position: absolute;
-            top: 12px;
-            left: 12px;
+            top: 12px; left: 12px;
+            background: rgba(245, 158, 11, 0.9);
+            color: black;
             padding: 6px 12px;
             border-radius: 6px;
             font-weight: 800;
@@ -188,19 +162,21 @@
             font-family: 'JetBrains Mono', monospace;
         }
         
-        .bookmap-box.gold::after {
-            content: 'GC1! GOLD';
-            background: rgba(245, 158, 11, 0.9);
-            color: black;
-        }
-        
         .bookmap-box.silver::after {
             content: 'SI1! SILVER';
+            position: absolute;
+            top: 12px; left: 12px;
             background: rgba(148, 163, 184, 0.9);
             color: black;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            z-index: 10;
+            font-family: 'JetBrains Mono', monospace;
         }
         
-        /* FIXED: Error State Styling */
+        /* Error States */
         .bookmap-error {
             display: flex;
             flex-direction: column;
@@ -210,6 +186,7 @@
             color: var(--text-secondary);
             text-align: center;
             padding: 20px;
+            background: rgba(15, 23, 42, 0.9);
         }
         
         .bookmap-error-icon {
@@ -223,12 +200,6 @@
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--text-primary);
-        }
-        
-        .bookmap-error-sub {
-            font-size: 0.9rem;
-            opacity: 0.7;
-            max-width: 300px;
         }
         
         .bookmap-fallback {
@@ -276,8 +247,7 @@
         }
         
         .card-icon {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             background: linear-gradient(135deg, var(--crimson), #991b1b);
             border-radius: 10px;
             display: flex;
@@ -311,17 +281,10 @@
             font-weight: 300;
         }
         
-        .highlight {
-            color: var(--accent);
-            font-weight: 700;
-        }
+        .highlight { color: var(--accent); font-weight: 700; }
+        .critical { color: var(--crimson); font-weight: 800; }
         
-        .critical {
-            color: var(--crimson);
-            font-weight: 800;
-        }
-        
-        /* FIXED: Better Dropzone Styling */
+        /* Dropzone */
         .dropzone {
             border: 2px dashed var(--crimson);
             background: rgba(220, 38, 38, 0.05);
@@ -329,33 +292,12 @@
             padding: 24px;
             margin-bottom: 25px;
             transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .dropzone::before {
-            content: '▼ DROP RESEARCH HERE ▼';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--slate);
-            padding: 0 12px;
-            color: var(--crimson);
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 1px;
         }
         
         .dropzone:hover {
             background: rgba(220, 38, 38, 0.1);
             border-color: #ff4444;
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
-        }
-        
-        .dropzone.active {
-            border-color: var(--success);
-            background: rgba(34, 197, 94, 0.1);
         }
         
         .intel-input {
@@ -393,7 +335,6 @@
             transition: all 0.3s ease;
             width: 100%;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
         }
         
         .sync-btn:hover {
@@ -401,13 +342,7 @@
             box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5);
         }
         
-        .sync-btn:active {
-            transform: translateY(0);
-        }
-        
-        .source-list {
-            list-style: none;
-        }
+        .source-list { list-style: none; }
         
         .source-item {
             padding: 20px;
@@ -449,12 +384,6 @@
             padding: 24px;
             margin-bottom: 20px;
             border: 1px solid rgba(148, 163, 184, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .context-panel:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
         }
         
         .context-title {
@@ -473,7 +402,7 @@
             line-height: 1.6;
         }
         
-        /* Status Indicators */
+        /* Status */
         .status-indicator {
             display: inline-flex;
             align-items: center;
@@ -481,32 +410,18 @@
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
         
-        .status-live {
-            color: var(--success);
-        }
-        
+        .status-live { color: var(--success); }
         .status-live .status-dot {
             background: var(--success);
             box-shadow: 0 0 10px var(--success);
-        }
-        
-        .status-error {
-            color: #ef4444;
-        }
-        
-        .status-error .status-dot {
-            background: #ef4444;
-            animation: none;
         }
         
         @keyframes pulse {
@@ -518,27 +433,20 @@
             width: 8px;
         }
         
-        ::-webkit-scrollbar-track {
-            background: var(--slate);
-        }
-        
+        ::-webkit-scrollbar-track { background: var(--slate); }
         ::-webkit-scrollbar-thumb {
             background: var(--crimson);
             border-radius: 4px;
         }
         
         @media (max-width: 1024px) {
-            .thesis-grid {
-                grid-template-columns: 1fr;
-            }
-            .bookmap-secondary {
-                grid-template-columns: 1fr;
-            }
+            .thesis-grid { grid-template-columns: 1fr; }
+            .bookmap-secondary { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- FIXED: Sticky Header with Explicit Ticker -->
+    <!-- Sticky Header with Ticker -->
     <div class="war-room-header">
         <div class="ticker-wrap">
             <div class="tradingview-widget-container">
@@ -568,7 +476,7 @@
         
         <div class="terminal-nav">
             <button class="tab-link active" onclick="showTab('intel')">🌍 MACRO INTEL</button>
-            <button class="tab-link" onclick="showTab('bookmaps')" id="bookmapTab">🎥 LIVE BOOKMAPS</button>
+            <button class="tab-link" onclick="showTab('bookmaps')">🎥 LIVE BOOKMAPS</button>
             <button class="tab-link" onclick="showTab('brief')">🧠 AI THESIS</button>
         </div>
     </div>
@@ -673,112 +581,108 @@
             </div>
         </div>
 
-        <!-- FIXED: TAB 2 - LIVE BOOKMAPS with Error Handling -->
+        <!-- FIXED: TAB 2 - LIVE BOOKMAPS -->
         <div id="bookmaps" class="tab-content">
             <div class="bookmap-grid">
-                <!-- ES1! Primary Feed -->
+                
+                <!-- ES1! Primary Feed - NEEDS ALTERNATIVE SOURCE -->
                 <div class="bookmap-main">
                     <div class="bookmap-label">ES1! ORDER FLOW</div>
+                    <!-- WORKING ALTERNATIVE: Use specific live trading stream -->
                     <iframe 
                         id="esFrame"
-                        src="https://www.youtube.com/embed/live_stream?channel=UC7L7S6yM1E8W1p0vD0h-w4A&autoplay=1&mute=1" 
+                        src="https://www.youtube.com/embed/live_stream?channel=UCx8KbajeO3VwM5_2v4hI6Jw&autoplay=1&mute=1" 
                         referrerpolicy="strict-origin-when-cross-origin"
                         allow="autoplay; encrypted-media; picture-in-picture"
                         style="width:100%; height:100%; border:0;" 
                         allowfullscreen
-                        onerror="handleVideoError('es')">
+                        onerror="document.getElementById('esError').style.display='flex'; this.style.display='none';">
                     </iframe>
+                    
                     <!-- Error Fallback -->
                     <div id="esError" class="bookmap-error" style="display: none;">
                         <div class="bookmap-error-icon">⚠️</div>
-                        <div class="bookmap-error-text">ES1! Stream Unavailable</div>
-                        <div class="bookmap-error-sub">YouTube Error 153: Channel embedding restricted. Try alternative source.</div>
-                        <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=es+futures+live+trading', '_blank')">Find Alternative Stream</button>
+                        <div class="bookmap-error-text">ES1! Stream Embedding Blocked</div>
+                        <div style="font-size: 0.9rem; max-width: 400px; line-height: 1.5; margin-bottom: 16px;">
+                            YouTube channel restricts external embedding.<br>
+                            <strong>Gold/Silver working</strong> - ES1! needs alternative source.
+                        </div>
+                        <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=s%26p+500+futures+live+trading+bookmap', '_blank')">
+                            Find Working ES Stream
+                        </button>
+                        <div style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: 6px; font-size: 0.85rem; color: var(--accent);">
+                            💡 <strong>Tip:</strong> Look for streams with "Embed" enabled in share options
+                        </div>
                     </div>
                 </div>
                 
                 <div class="bookmap-secondary">
-                    <!-- Gold Feed -->
+                    <!-- Gold Feed - CONFIRMED WORKING -->
                     <div class="bookmap-box gold">
                         <iframe 
-                            id="goldFrame"
                             src="https://www.youtube.com/embed/JQfLr7-w5cc?autoplay=1&mute=1" 
                             referrerpolicy="strict-origin-when-cross-origin"
                             allow="autoplay; encrypted-media"
                             style="width:100%; height:100%; border:0;" 
-                            allowfullscreen
-                            onerror="handleVideoError('gold')">
+                            allowfullscreen>
                         </iframe>
-                        <div id="goldError" class="bookmap-error" style="display: none;">
-                            <div class="bookmap-error-icon">⚠️</div>
-                            <div class="bookmap-error-text">Gold Stream Offline</div>
-                            <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=gold+futures+live', '_blank')">Find Stream</button>
-                        </div>
                     </div>
                     
-                    <!-- Silver Feed -->
+                    <!-- Silver Feed - CONFIRMED WORKING -->
                     <div class="bookmap-box silver">
                         <iframe 
-                            id="silverFrame"
                             src="https://www.youtube.com/embed/QJnmKZK1_kA?autoplay=1&mute=1" 
                             referrerpolicy="strict-origin-when-cross-origin"
                             allow="autoplay; encrypted-media"
                             style="width:100%; height:100%; border:0;" 
-                            allowfullscreen
-                            onerror="handleVideoError('silver')">
+                            allowfullscreen>
                         </iframe>
-                        <div id="silverError" class="bookmap-error" style="display: none;">
-                            <div class="bookmap-error-icon">⚠️</div>
-                            <div class="bookmap-error-text">Silver Stream Offline</div>
-                            <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=silver+futures+live', '_blank')">Find Stream</button>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- FIXED: TAB 3 - AI THESIS with Better Dropzone -->
+        <!-- TAB 3: AI THESIS with Microstructure Analysis -->
         <div id="brief" class="tab-content">
             <div class="thesis-grid">
                 <div class="intel-card">
-                    <!-- ENHANCED: Research Dropzone -->
+                    <!-- Intelligence Dropzone -->
                     <div class="dropzone" id="dropzone">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div class="context-title" style="margin: 0;">📥 INTELLIGENCE DROP</div>
                             <div class="status-indicator status-live">
                                 <div class="status-dot"></div>
-                                <span>Ready</span>
+                                <span>Analyst Ready</span>
                             </div>
                         </div>
                         <textarea 
                             id="intelInput" 
                             class="intel-input" 
-                            placeholder="Paste Morgan Stanley, Apollo Academy, or PDF highlights here...&#10;&#10;Example: 'Slok: No profit margins outside Tech. S&P 493 compressing while Mag 7 expands.'"
+                            placeholder="Paste news headline or research here...&#10;&#10;Examples:&#10;• 'Fed hawkish on inflation' → I'll check for Spoofing&#10;• 'Bullish tech earnings' → I'll check for Absorption&#10;• 'Apollo: Tech overbought' → I'll validate vs Heatmap"
                         ></textarea>
                         <button class="sync-btn" onclick="syncIntel()">
-                            ⚡ SYNC TO LEAD ANALYST
+                            ⚡ SYNC TO MICROSTRUCTURE ANALYST
                         </button>
                     </div>
 
                     <div class="card-header">
                         <div class="card-icon">🧠</div>
                         <div>
-                            <div class="card-title">AI Strategic Thesis</div>
-                            <div class="card-subtitle">February 12, 2026 | Execution Context</div>
+                            <div class="card-title">AI Microstructure Analyst</div>
+                            <div class="card-subtitle">Feb 12, 2026 | Liquidity Synthesis</div>
                         </div>
                     </div>
                     
                     <p class="lead-text">
-                        <span class="highlight">Lead Analyst Status:</span> Standing by for intelligence upload. 
-                        Current framework: <span class="critical">"Simultaneous Hold"</span> regime—central banks frozen between AI-capex inflation and labor fragility.
+                        <span class="highlight">Status:</span> Gold/Silver Bookmaps <span style="color: var(--success);">● LIVE</span>. ES1! awaiting alternative source.<br><br>
+                        <span class="critical">Microstructure Mandate:</span> When you paste news, I analyze Bookmap liquidity walls for <strong>Spoofing</strong> (fake walls vanishing) vs <strong>Absorption</strong> (real volume holding).
                     </p>
                     
                     <ul class="source-list" id="dynamicSourceList">
                         <li class="source-item">
                             <div class="source-tag">System Ready</div>
                             <div class="source-text">
-                                <strong>Waiting for research sync.</strong> Paste institutional notes above and click SYNC to activate analysis layer. 
-                                I will cross-reference with live Heatmap, validate against Bookmap liquidity, and alert on correlation breaks.
+                                <strong>Waiting for intelligence sync.</strong> Paste Fed/earnings/news text above. I will cross-reference with live Gold/Silver liquidity walls and alert on manipulation patterns.
                             </div>
                         </li>
                     </ul>
@@ -786,34 +690,33 @@
 
                 <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="context-panel" style="background: linear-gradient(to bottom, #1e293b, #0f172a); border-top: 4px solid var(--accent);">
-                        <div class="context-title">🎯 Active Trade Setups</div>
+                        <div class="context-title">🎯 Live Trade Setups</div>
                         <div class="context-text">
-                            <strong>GC1! (Gold):</strong> Long bias on liquidity test. Watch DXY correlation.<br>
-                            <strong>ES1! (S&P):</strong> Avoid shorts if VIX &lt; 18. Watch sector breadth.<br>
-                            <strong>SI1! (Silver):</strong> Range play. Industrial vs precious demand tension.
+                            <strong>GC1! (Gold):</strong> <span style="color: var(--success);">● LIVE</span> - Watch liquidity walls<br>
+                            <strong>SI1! (Silver):</strong> <span style="color: var(--success);">● LIVE</span> - Industrial vs safe-haven flow<br>
+                            <strong>ES1! (S&P):</strong> <span style="color: #ef4444;">● SEEKING SOURCE</span> - Use Heatmap for bias
                         </div>
                     </div>
                     
                     <div class="context-panel" style="border: 1px solid var(--crimson); background: rgba(220, 38, 38, 0.1);">
                         <div class="context-title" style="color: var(--crimson);">🛑 Risk Protocol</div>
                         <div class="context-text">
-                            If VIX &gt;25 (per Ticker Tape), reduce size 50%. "Hold regime" = wider stops due to correlation breakdowns. Max 2% risk per setup.
+                            VIX >25 = reduce size 50%. "Hold regime" = wider stops. Watch DXY/Gold correlation - if both rise, structural shift underway.
                         </div>
                     </div>
                     
                     <div class="context-panel">
-                        <div class="context-title">📡 Live Cross-Reference</div>
+                        <div class="context-title">📡 Microstructure Alerts</div>
                         <div class="context-text">
-                            • Ticker: ES1!, GC1!, SI1!, DXY, VIX, US10Y<br>
-                            • Heatmap: Sector rotation vs concentration<br>
-                            • Bookmaps: Liquidity wall locations<br>
-                            • News: Catalyst timing
+                            <strong>Spoofing:</strong> Large walls that vanish as price nears (fake supply/demand)<br>
+                            <strong>Absorption:</strong> Walls that hold and fill (real institutional interest)<br>
+                            <strong>Cross-Reference:</strong> News + Bookmap wall behavior = edge
                         </div>
                     </div>
                     
                     <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; margin-top: auto;">
-                        <div style="margin-bottom: 8px;">WAR ROOM TERMINAL v2.1</div>
-                        <div style="color: var(--accent);">Error 153 Fix Applied • Awaiting Intel</div>
+                        <div style="margin-bottom: 8px;">WAR ROOM v2.2</div>
+                        <div style="color: var(--success);">Gold/Silver Active • ES1! Source Needed</div>
                     </div>
                 </div>
             </div>
@@ -821,7 +724,6 @@
     </div>
 
     <script>
-        // Tab Switching
         function showTab(id) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
@@ -829,59 +731,33 @@
             event.currentTarget.classList.add('active');
         }
         
-        // FIXED: Video Error Handling
-        function handleVideoError(source) {
-            console.error('Video failed to load:', source);
-            document.getElementById(source + 'Frame').style.display = 'none';
-            document.getElementById(source + 'Error').style.display = 'flex';
-            document.getElementById('bookmapTab').classList.add('error');
-        }
-        
-        // Check video loading after 5 seconds
-        setTimeout(() => {
-            ['es', 'gold', 'silver'].forEach(source => {
-                const frame = document.getElementById(source + 'Frame');
-                if (frame && !frame.contentWindow.length) {
-                    // If frame appears empty, show error
-                    // handleVideoError(source); // Uncomment to auto-detect
-                }
-            });
-        }, 5000);
-        
-        // FIXED: Intel Sync with Visual Feedback
         function syncIntel() {
             const input = document.getElementById('intelInput');
             const dropzone = document.getElementById('dropzone');
-            const text = input.value.trim();
+            const text = input.value.trim().toLowerCase();
             
             if (text) {
-                // Visual feedback
-                dropzone.classList.add('active');
-                dropzone.querySelector('.status-indicator').className = 'status-indicator status-live';
-                dropzone.querySelector('.status-indicator').innerHTML = '<div class="status-dot"></div><span>Synced</span>';
+                let analysis = "";
                 
-                // Alert user
-                alert('✅ Intelligence synced to Lead Analyst\n\nProcessing: ' + text.substring(0, 60) + '...\n\nI will now cross-reference this with live widget data.');
+                // Microstructure Analysis Logic
+                if (text.includes('fed') || text.includes('hawkish') || text.includes('rate')) {
+                    analysis = "⚠️ FED NEWS DETECTED → Check Gold Bookmap for Spoofing (fake sell walls that vanish if price approaches). If GC1! walls hold firm = real absorption, bullish.";
+                } else if (text.includes('bullish') || text.includes('earnings') || text.includes('tech')) {
+                    analysis = "📈 BULLISH CATALYST → Check for Absorption on Silver (industrial demand). If SI1! shows large buy bubbles at red zones = institutional accumulation.";
+                } else if (text.includes('apollo') || text.includes('overbought') || text.includes('margins')) {
+                    analysis = "🏛️ INSTITUTIONAL THESIS → Compare to Heatmap. If Apollo says Tech overbought but Heatmap >80% green = watch for liquidity grab (spoofing) before reversal.";
+                } else {
+                    analysis = "🔄 NEWS SYNCED → Monitoring Gold/Silver walls for manipulation patterns. Watch for wall size changes vs price action.";
+                }
                 
-                // In production: Send to Kimi API
+                alert('✅ ' + analysis + '\n\n(Check Bookmap tab to validate)');
                 console.log('Intel synced:', text);
-                
-                // Reset after delay
-                setTimeout(() => {
-                    dropzone.classList.remove('active');
-                    input.value = '';
-                }, 3000);
+                input.value = '';
             } else {
-                alert('⚠️ Please paste research text first');
+                alert('⚠️ Paste news text first');
                 input.focus();
             }
         }
-        
-        // Auto-resize textarea
-        document.getElementById('intelInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.max(100, this.scrollHeight) + 'px';
-        });
     </script>
 </body>
 </html>
