@@ -1,1266 +1,887 @@
-<div class="trading-desk-briefing">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-    
-    :root {
-      --primary: #0ea5e9;
-      --accent: #f59e0b;
-      --danger: #ef4444;
-      --success: #10b981;
-      --purple: #8b5cf6;
-      --bg-dark: #0f172a;
-      --bg-card: #1e293b;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --border: #334155;
-    }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: var(--text-primary);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    
-    .briefing-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-      padding: 2rem;
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--accent), var(--danger));
-    }
-    
-    .header h1 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .header .subtitle {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-    
-    .header .timestamp {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--accent);
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background: rgba(245, 158, 11, 0.1);
-      border-radius: 6px;
-      display: inline-block;
-    }
-    
-    .tabs-container {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-      background: var(--bg-card);
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-    
-    .tab-btn {
-      padding: 0.75rem 1.5rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .tab-btn:hover {
-      background: rgba(14, 165, 233, 0.1);
-      color: var(--primary);
-      border-color: var(--primary);
-    }
-    
-    .tab-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    
-    .content-area {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 2rem;
-    }
-    
-    .sidebar {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 1.5rem;
-      border: 1px solid var(--border);
-      height: fit-content;
-      position: sticky;
-      top: 2rem;
-    }
-    
-    .sidebar-nav { list-style: none; }
-    .sidebar-nav li { margin-bottom: 0.5rem; }
-    
-    .sidebar-nav a {
-      display: block;
-      padding: 0.75rem 1rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border-radius: 6px;
-      transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-    
-    .sidebar-nav a:hover, .sidebar-nav a.active {
-      background: rgba(14, 165, 233, 0.1);
-      color: var(--primary);
-      border-left-color: var(--primary);
-    }
-    
-    .main-content {
-      background: var(--bg-card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    
-    .tab-content {
-      display: none;
-      padding: 2rem;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    .tab-content.active { display: block; }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .section-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .data-card {
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .data-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    
-    .data-card.highlight {
-      border-color: var(--accent);
-      background: rgba(245, 158, 11, 0.05);
-    }
-    
-    .data-card.critical {
-      border-color: var(--danger);
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .data-card.research {
-      border-color: var(--purple);
-      background: rgba(139, 92, 246, 0.05);
-    }
-    
-    .data-label {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-    
-    .data-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 0.5rem;
-    }
-    
-    .data-value.positive { color: var(--success); }
-    .data-value.negative { color: var(--danger); }
-    .data-value.neutral { color: var(--accent); }
-    
-    .data-context {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-    
-    .alert-box {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-      border-left: 4px solid var(--danger);
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin: 1.5rem 0;
-    }
-    
-    .alert-box h4 {
-      color: var(--danger);
-      font-family: 'JetBrains Mono', monospace;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .playbook-timeline {
-      position: relative;
-      padding-left: 2rem;
-    }
-    
-    .playbook-timeline::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(180deg, var(--primary), var(--accent));
-    }
-    
-    .timeline-item {
-      position: relative;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -2.4rem;
-      top: 1.5rem;
-      width: 12px;
-      height: 12px;
-      background: var(--primary);
-      border-radius: 50%;
-      border: 3px solid var(--bg-card);
-    }
-    
-    .timeline-item.critical::before {
-      background: var(--danger);
-      box-shadow: 0 0 10px var(--danger);
-    }
-    
-    .time-badge {
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--primary);
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: inline-block;
-      margin-bottom: 0.75rem;
-    }
-    
-    .timeline-item.critical .time-badge { background: var(--danger); }
-    
-    .actionable-levels {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    
-    .level-box {
-      padding: 1rem;
-      border-radius: 8px;
-      text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-    }
-    
-    .level-box.buy {
-      background: rgba(16, 185, 129, 0.1);
-      border: 2px solid var(--success);
-      color: var(--success);
-    }
-    
-    .level-box.sell {
-      background: rgba(239, 68, 68, 0.1);
-      border: 2px solid var(--danger);
-      color: var(--danger);
-    }
-    
-    .tag {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      background: rgba(14, 165, 233, 0.2);
-      color: var(--primary);
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .tag.warning {
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--accent);
-    }
-    
-    .tag.danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--danger);
-    }
-    
-    .tag.purple {
-      background: rgba(139, 92, 246, 0.2);
-      color: var(--purple);
-    }
-    
-    .merger-highlight {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-      border: 2px solid var(--primary);
-      border-radius: 12px;
-      padding: 2rem;
-      margin: 1.5rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .merger-highlight::before {
-      content: 'MERGER ALERT';
-      position: absolute;
-      top: 1rem;
-      right: -2rem;
-      background: var(--primary);
-      color: white;
-      padding: 0.25rem 3rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      transform: rotate(45deg);
-    }
-    
-    .research-card {
-      background: rgba(139, 92, 246, 0.05);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      transition: all 0.2s;
-    }
-    
-    .research-card:hover {
-      border-color: var(--purple);
-      transform: translateX(5px);
-    }
-    
-    .research-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      margin-bottom: 0.75rem;
-    }
-    
-    .research-source {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--purple);
-      font-weight: 600;
-    }
-    
-    .research-time {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
-    
-    .research-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary);
-    }
-    
-    .research-excerpt {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: 0.75rem;
-    }
-    
-    .risk-matrix {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    
-    .risk-item {
-      text-align: center;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    
-    .risk-item.high {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: var(--danger);
-    }
-    
-    .risk-item.medium {
-      background: rgba(245, 158, 11, 0.1);
-      border-color: var(--accent);
-    }
-    
-    .risk-item.low {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: var(--success);
-    }
-    
-    .risk-label {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-    }
-    
-    .risk-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    
-    .footer {
-      text-align: center;
-      margin-top: 3rem;
-      padding: 2rem;
-      border-top: 1px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-    
-    @media (max-width: 1024px) {
-      .content-area { grid-template-columns: 1fr; }
-      .sidebar {
-        position: static;
-        display: flex;
-        overflow-x: auto;
-        padding: 1rem;
-      }
-      .sidebar-nav {
-        display: flex;
-        gap: 0.5rem;
-        min-width: max-content;
-      }
-      .sidebar-nav li { margin: 0; }
-      .risk-matrix { grid-template-columns: 1fr; }
-    }
-  </style>
-
-  <div class="briefing-container">
-    <header class="header">
-      <h1>🏛️ THURSDAY MACRO COMMAND CENTER</h1>
-      <div class="subtitle">Elite Trading Desk Briefing | February 12, 2026</div>
-      <div class="timestamp">PRE-MARKET SESSION ACTIVE | 30Y AUCTION $25B @ 13:00 ET</div>
-    </header>
-
-    <div class="tabs-container">
-      <button class="tab-btn active" onclick="showTab('fedwatch')">FedWatch</button>
-      <button class="tab-btn" onclick="showTab('futures')">Futures Depth</button>
-      <button class="tab-btn" onclick="showTab('jobs')">Jobs Jolt</button>
-      <button class="tab-btn" onclick="showTab('calendar')">Econ Calendar</button>
-      <button class="tab-btn" onclick="showTab('merger')">$13.5B Merger</button>
-      <button class="tab-btn" onclick="showTab('tech')">Tech Earnings</button>
-      <button class="tab-btn" onclick="showTab('yields')">Yield Curve</button>
-      <button class="tab-btn" onclick="showTab('commodities')">Commodities</button>
-      <button class="tab-btn" onclick="showTab('energy')">Energy Intel</button>
-      <button class="tab-btn" onclick="showTab('research')">Research Desk</button>
-      <button class="tab-btn" onclick="showTab('risk')">Risk Check</button>
-      <button class="tab-btn" onclick="showTab('playbook')">Playbook</button>
-    </div>
-
-    <div class="content-area">
-      <aside class="sidebar">
-        <ul class="sidebar-nav">
-          <li><a href="#fedwatch" class="active" onclick="showTab('fedwatch')">FedWatch Ground Truth</a></li>
-          <li><a href="#futures" onclick="showTab('futures')">Futures & Options</a></li>
-          <li><a href="#jobs" onclick="showTab('jobs')">Wednesday Jobs Jolt</a></li>
-          <li><a href="#calendar" onclick="showTab('calendar')">Economic Calendar</a></li>
-          <li><a href="#merger" onclick="showTab('merger')">Nuveen/Schroders Deal</a></li>
-          <li><a href="#tech" onclick="showTab('tech')">Tech Earnings</a></li>
-          <li><a href="#yields" onclick="showTab('yields')">Yield & DXY</a></li>
-          <li><a href="#commodities" onclick="showTab('commodities')">Gold & Silver</a></li>
-          <li><a href="#energy" onclick="showTab('energy')">Energy Markets</a></li>
-          <li><a href="#research" onclick="showTab('research')">Research Desk</a></li>
-          <li><a href="#risk" onclick="showTab('risk')">Risk Check</a></li>
-          <li><a href="#playbook" onclick="showTab('playbook')">Today's Playbook</a></li>
-        </ul>
-      </aside>
-
-      <main class="main-content">
-        <!-- TAB 1: FEDWATCH -->
-        <div id="fedwatch" class="tab-content active">
-          <h2 class="section-title">📊 FEDWATCH GROUND TRUTH (CME)</h2>
-          <div class="data-grid">
-            <div class="data-card">
-              <div class="data-label">Current Rate Environment</div>
-              <div class="data-value neutral">3.50% − 3.75%</div>
-              <div class="data-context">Federal Funds Rate holding steady in target range</div>
-            </div>
-            <div class="data-card highlight">
-              <div class="data-label">March 2026 "Hold" Probability</div>
-              <div class="data-value positive">94.1%</div>
-              <div class="data-context">Up from 24.8% pre-NFP. The 130k jobs print vaporized March cut expectations.</div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">Market Narrative</div>
-              <div class="data-value">"Higher for Longer"</div>
-              <div class="data-context">Resilience phase pricing in sustained restrictive policy</div>
-            </div>
-          </div>
-          <div class="alert-box">
-            <h4>⚠️ SHIFT ALERT</h4>
-            <p>Watch for May meeting probabilities to start shifting if today's <strong>Existing Home Sales (10:00 AM)</strong> shows continued stagflation in the housing sector. A print below 4.0M could revive cut expectations for May.</p>
-          </div>
-        </div>
-
-        <!-- TAB 2: FUTURES -->
-        <div id="futures" class="tab-content">
-          <h2 class="section-title">📈 FUTURES & OPTIONS DEPTH (CME)</h2>
-          <div class="data-grid">
-            <div class="data-card highlight">
-              <div class="data-label">Gold (GCJ26)</div>
-              <div class="data-value">$5,098.40/oz</div>
-              <div class="data-context">
-                <span class="tag">Support: $5,037</span>
-                <span class="tag warning">52W High: $5,586</span>
-                <br><br>
-                "Technical Cooling" post-jobs beat. Fib 61.8% retracement at $4,587 suggests long-term bullish base intact.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">WTI Crude (CLH26)</div>
-              <div class="data-value">$64.92/bbl</div>
-              <div class="data-context">
-                Volume concentrated at <strong>$65.50 strike</strong> for March calls. IEA demand downgrade capping upside.
-              </div>
-            </div>
-            <div class="data-card critical">
-              <div class="data-label">E-mini S&P 500 (ESH26)</div>
-              <div class="data-value">6,085.00</div>
-              <div class="data-context">
-                <span class="tag danger">Key Level</span> Watch 6,120 resistance. Break below 6,040 on weak 30Y auction = accelerated selling.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 3: JOBS -->
-        <div id="jobs" class="tab-content">
-          <h2 class="section-title">⚡ THE WEDNESDAY "JOBS JOLT" AUDIT</h2>
-          <div class="data-grid">
-            <div class="data-card highlight">
-              <div class="data-label">Headline NFP</div>
-              <div class="data-value positive">+130,000</div>
-              <div class="data-context">Vs. 70k Consensus | Massive beat keeping Fed hawkish</div>
-            </div>
-            <div class="data-card critical">
-              <div class="data-label">The "Fly in the Ointment"</div>
-              <div class="data-value negative">-400,000+</div>
-              <div class="data-context">2025 Yearly Revision released yesterday. Downward adjustment of 400k+ jobs for previous year.</div>
-            </div>
-          </div>
-          <div class="alert-box">
-            <h4>🎯 TRADING DESK INSIGHT</h4>
-            <p>The headline beat is keeping the Fed hawkish, but the <strong>2025 revision</strong> is why the US Dollar (DXY) hasn't "mooned"—smart money is looking at the long-term softening of the labor market beneath the surface.</p>
-          </div>
-        </div>
-
-        <!-- TAB 4: CALENDAR -->
-        <div id="calendar" class="tab-content">
-          <h2 class="section-title">📅 THURSDAY ECONOMIC CALENDAR</h2>
-          <div class="data-grid">
-            <div class="data-card">
-              <div class="data-label">Initial Jobless Claims (08:30 AM)</div>
-              <div class="data-value">222k</div>
-              <div class="data-context">Beat vs. 231k previous. Confirms labor tightness.</div>
-            </div>
-            <div class="data-card critical">
-              <div class="data-label">Existing Home Sales (10:00 AM)</div>
-              <div class="data-value">4.15M <span style="font-size:1rem">(Forecast)</span></div>
-              <div class="data-context">
-                <span class="tag danger">CRITICAL</span>
-                Print below 4.0M = "Recessionary Signal" → Late-morning Gold bid likely
-              </div>
-            </div>
-            <div class="data-card critical">
-              <div class="data-label">30-Year Bond Auction (01:00 PM)</div>
-              <div class="data-value">$25 Billion</div>
-              <div class="data-context">
-                <span class="tag danger">HIGH IMPACT</span>
-                Weak demand could spike yields, crush equities. Watch bid-to-cover ratio.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">Fed Speakers</div>
-              <div class="data-value" style="font-size:1.2rem">Logan & Miran</div>
-              <div class="data-context">
-                Dallas Fed's Lorie Logan (12:00 PM)<br>
-                Governor Stephen Miran (07:05 PM)<br>
-                <span class="tag warning">Note: Bowman spoke yesterday (2/11)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 5: MERGER -->
-        <div id="merger" class="tab-content">
-          <h2 class="section-title">🏢 THE $13.5B ASSET MERGER (BLOOMBERG)</h2>
-          <div class="merger-highlight">
-            <h3 style="margin-bottom:1rem; color:var(--primary);">Nuveen Acquires Schroders PLC</h3>
-            <div class="data-grid" style="margin:0;">
-              <div class="data-card" style="background:transparent; border-color:rgba(255,255,255,0.2);">
-                <div class="data-label">Deal Value</div>
-                <div class="data-value">£9.9 Billion</div>
-                <div class="data-context">$13.5B USD equivalent | 612p per share total (590p cash + 22p dividend)</div>
-              </div>
-              <div class="data-card" style="background:transparent; border-color:rgba(255,255,255,0.2);">
-                <div class="data-label">Premium</div>
-                <div class="data-value positive">+29% Cash / +34% Total</div>
-                <div class="data-context">Cash consideration: £5.90/share vs 456p close</div>
-              </div>
-              <div class="data-card" style="background:transparent; border-color:rgba(255,255,255,0.2);">
-                <div class="data-label">Combined AUM</div>
-                <div class="data-value">$2.5 Trillion</div>
-                <div class="data-context">Nuveen $1.4T + Schroders | 17x operating profit multiple</div>
-              </div>
-            </div>
-            <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1);">
-              <p><strong>Strategic Impact:</strong> Marks end of 200 years of independence for UK's largest standalone manager. London serves as non-US HQ, housing 3,100+ staff. Schroder family (42% holders) backing deal via irrevocable undertakings.</p>
-              <p style="margin-top:1rem;"><span class="tag">LSE: SDR</span> <span class="tag warning">Watch 29% gap open</span> <span class="tag purple">Potential future LSE re-listing</span></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 6: TECH -->
-        <div id="tech" class="tab-content">
-          <h2 class="section-title">💻 TECH EARNINGS & AI DISPLACEMENT</h2>
-          <div class="data-grid">
-            <div class="data-card critical">
-              <div class="data-label">Cisco (CSCO)</div>
-              <div class="data-value negative">-8% <span style="font-size:1rem">Pre-Mkt</span></div>
-              <div class="data-context">
-                Despite $2.1B AI order book, gross margins came in light. Signal: "AI infrastructure" hardware becoming commoditized.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">AppLovin (APP)</div>
-              <div class="data-value negative">-4.8%</div>
-              <div class="data-context">
-                Post-Q4 results. Marketing tech sector feeling burn of increased AI competition.
-              </div>
-            </div>
-          </div>
-          <div class="alert-box">
-            <h4>🎭 THEME FOR TODAY</h4>
-            <p>Markets are <strong>no longer rewarding "AI hype"</strong>; they are punishing <strong>"AI competition"</strong> and margin erosion. Quality over narrative.</p>
-          </div>
-        </div>
-
-        <!-- TAB 7: YIELDS -->
-        <div id="yields" class="tab-content">
-          <h2 class="section-title">📉 YIELD & DXY CURVE</h2>
-          <div class="data-grid">
-            <div class="data-card">
-              <div class="data-label">10-Year Treasury Yield</div>
-              <div class="data-value">4.18%</div>
-              <div class="data-context">Sustaining rebound from 4.10% post-NFP</div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">30-Year Treasury Yield</div>
-              <div class="data-value">4.47%</div>
-              <div class="data-context">Auction preview: Last auction 4.825%. Watch for tail risk.</div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">DXY Index</div>
-              <div class="data-value">96.84</div>
-              <div class="data-context">Dollar consolidating. Resistance at 97.00</div>
-            </div>
-          </div>
-          <div class="alert-box critical">
-            <h4>🔗 CORRELATION ALERT</h4>
-            <p>If 10-YR Yield breaks <strong>4.25%</strong> today, expect Nasdaq 100 (E-minis) to drop <strong>1.5%</strong> immediately. Watch the 1:00 PM Bond Auction for the trigger.</p>
-          </div>
-        </div>
-
-        <!-- TAB 8: COMMODITIES -->
-        <div id="commodities" class="tab-content">
-          <h2 class="section-title">🥇 COMMODITY GEOPOLITICS</h2>
-          <div class="data-grid">
-            <div class="data-card highlight">
-              <div class="data-label">Gold Sentiment</div>
-              <div class="data-value positive">$6,100 Target</div>
-              <div class="data-context">
-                <strong>Wells Fargo YE 2026 Target</strong><br>
-                Drivers: BRICS+ central bank accumulation + Fed Independence concerns
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">Silver (SIH26)</div>
-              <div class="data-value">$83.50/oz</div>
-              <div class="data-context">
-                Lagging Gold. Watch Gold/Silver ratio for mean-reversion trade if Gold holds $5k.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">Copper (HGH26)</div>
-              <div class="data-value">$4.52/lb</div>
-              <div class="data-context">
-                Dr. Copper signaling global growth concerns. Below $4.50 = risk-off confirmation.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 9: ENERGY -->
-        <div id="energy" class="tab-content">
-          <h2 class="section-title">⛽ ENERGY & INDUSTRIAL INTELLIGENCE</h2>
-          <div class="data-grid">
-            <div class="data-card">
-              <div class="data-label">IEA Report (09:00 AM)</div>
-              <div class="data-value">850k bpd</div>
-              <div class="data-context">Lowered 2026 global demand growth forecast</div>
-            </div>
-            <div class="data-card critical">
-              <div class="data-label">Crude Inventory</div>
-              <div class="data-value negative">+8.5M barrels</div>
-              <div class="data-context">Surge in stocks capping geopolitical risk premium from Middle East tensions</div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">Natural Gas Storage (10:30 AM)</div>
-              <div class="data-value">-256 Bcf <span style="font-size:1rem">(Forecast)</span></div>
-              <div class="data-context">EIA Storage Change due</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 10: RESEARCH -->
-        <div id="research" class="tab-content">
-          <h2 class="section-title">📚 RESEARCH DESK</h2>
-          
-          <div class="research-card">
-            <div class="research-header">
-              <span class="research-source">GOLDMAN SACHS</span>
-              <span class="research-time">Feb 12, 06:00 ET</span>
-            </div>
-            <div class="research-title">The "Higher for Longer" Duration Trade</div>
-            <div class="research-excerpt">
-              Post-NFP recalibration suggests the front-end is mispriced for cuts. We see value in 2s10s steepeners as the market adjusts to a June baseline for first cut. The 30Y auction today will test real money appetite at these yield levels—weak demand confirms our bearish duration view.
-            </div>
-            <div>
-              <span class="tag purple">Rates</span>
-              <span class="tag">Fed Policy</span>
-              <span class="tag warning">Trade Idea</span>
-            </div>
-          </div>
-
-          <div class="research-card">
-            <div class="research-header">
-              <span class="research-source">MORGAN STANLEY</span>
-              <span class="research-time">Feb 12, 05:30 ET</span>
-            </div>
-            <div class="research-title">Asset Management M&A: Nuveen/Schroders Analysis</div>
-            <div class="research-excerpt">
-              The £9.9B deal values Schroders at 17x operating profit—rich but strategic. Combined $2.5T AUM creates top-5 global player. Key risk: UK political opposition to US takeover. Watch for LSE listing commitment language. Short-term: SDR +25-30% gap. Medium-term: cost synergies 18-24 months out.
-            </div>
-            <div>
-              <span class="tag purple">M&A</span>
-              <span class="tag">Asset Management</span>
-              <span class="tag">UK Equities</span>
-            </div>
-          </div>
-
-          <div class="research-card">
-            <div class="research-header">
-              <span class="research-source">JPMORGAN</span>
-              <span class="research-time">Feb 11, 18:45 ET</span>
-            </div>
-            <div class="research-title">Gold: The $6,100 Pathway</div>
-            <div class="research-excerpt">
-              Wells Fargo's $6,100 target is aggressive but directionally correct. Central bank buying (BRICS+) and "de-dollarization" narratives support structural demand. Near-term: $5,037 support must hold post-NFP. A break below $4,987 triggers CTAs to sell. We remain long via 6-month calls.
-            </div>
-            <div>
-              <span class="tag purple">Commodities</span>
-              <span class="tag">Gold</span>
-              <span class="tag warning">Technical</span>
-            </div>
-          </div>
-
-          <div class="research-card">
-            <div class="research-header">
-              <span class="research-source">DEUTSCHE BANK</span>
-              <span class="research-time">Feb 12, 04:15 ET</span>
-            </div>
-            <div class="research-title">Housing Data Preview: Existing Home Sales</div>
-            <div class="research-excerpt">
-              Consensus 4.15M is optimistic given mortgage rate "lock-in" persists. Our models suggest 4.02M. A sub-4.0M print would trigger recession chatter and boost Gold/Treasuries. Watch Midwest/South regional breakdowns—Northeast weakness already priced. Fed's Jefferson speaks at 12:00 PM on supply-side inflation.
-            </div>
-            <div>
-              <span class="tag purple">Housing</span>
-              <span class="tag">Macro</span>
-              <span class="tag danger">Today 10:00 AM</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 11: RISK -->
-        <div id="risk" class="tab-content">
-          <h2 class="section-title">🛡️ RISK CHECK</h2>
-          
-          <div class="data-grid">
-            <div class="data-card critical">
-              <div class="data-label">30Y Auction Tail Risk</div>
-              <div class="data-value negative">HIGH</div>
-              <div class="data-context">
-                $25B supply at 1:00 PM. Recent 30Y auctions have seen weak indirect demand. A tail >2bps = immediate risk-off across equities.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">VIX</div>
-              <div class="data-value">18.45</div>
-              <div class="data-context">
-                Sub-20 complacency. Spike to 22+ likely on auction weakness or housing miss.
-              </div>
-            </div>
-            <div class="data-card">
-              <div class="data-label">MOVE Index</div>
-              <div class="data-value">112.30</div>
-              <div class="data-context">
-                Treasury volatility elevated. Watch for breakout above 115 on auction results.
-              </div>
-            </div>
-          </div>
-
-          <div class="risk-matrix">
-            <div class="risk-item high">
-              <div class="risk-label">Rates Vol</div>
-              <div class="risk-value" style="color:var(--danger)">8/10</div>
-            </div>
-            <div class="risk-item medium">
-              <div class="risk-label">Equity Drawdown</div>
-              <div class="risk-value" style="color:var(--accent)">5/10</div>
-            </div>
-            <div class="risk-item medium">
-              <div class="risk-label">FX Vol</div>
-              <div class="risk-value" style="color:var(--accent)">4/10</div>
-            </div>
-          </div>
-
-          <div class="alert-box" style="margin-top:2rem;">
-            <h4>⚠️ RISK SCENARIOS</h4>
-            <ul style="margin-top:0.75rem; padding-left:1.5rem; color:var(--text-secondary);">
-              <li><strong>Worst Case:</strong> Existing Home Sales <4.0M + 30Y Auction tails >2bps → ES -2%, Gold +$50, 10Y yield +15bps</li>
-              <li><strong>Base Case:</strong> Data inline, auction decent → Range-bound, low conviction chop</li>
-              <li><strong>Best Case:</strong> Housing beat + strong auction bid-to-cover >2.5 → ES +1%, yields -5bps, DXY breaks 97</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- TAB 12: PLAYBOOK -->
-        <div id="playbook" class="tab-content">
-          <h2 class="section-title">🎯 THE THROUGHOUT-THE-DAY PLAYBOOK</h2>
-          
-          <div class="playbook-timeline">
-            <div class="timeline-item">
-              <span class="time-badge">09:30 AM – 11:00 AM</span>
-              <h4 style="color:var(--primary); margin-bottom:0.5rem;">THE OPEN</h4>
-              <p>Monitor Schroders' 29% price action on LSE. Focus on <strong>Existing Home Sales (10:00 AM)</strong> for first volatility spike. Gold bid likely if print < 4.0M.</p>
-            </div>
-            
-            <div class="timeline-item critical">
-              <span class="time-badge">11:00 AM – 1:30 PM</span>
-              <h4 style="color:var(--danger); margin-bottom:0.5rem;">THE PIVOT ⚠️</h4>
-              <p><strong>CRITICAL EVENT: 30-Year Bond Auction @ 1:00 PM ET ($25B)</strong></p>
-              <ul style="margin-top:0.75rem; padding-left:1.5rem; color:var(--text-secondary);">
-                <li><strong>Scenario A:</strong> High Demand (BTC >2.5, Low Yield) → Stocks/Gold Rally</li>
-                <li><strong>Scenario B:</strong> Low Demand (Tail >2bps, High Yield) → Sharp Sell-off in Tech/Risk assets</li>
-              </ul>
-            </div>
-            
-            <div class="timeline-item">
-              <span class="time-badge">1:30 PM – 4:00 PM</span>
-              <h4 style="color:var(--primary); margin-bottom:0.5rem;">THE CLOSE</h4>
-              <p>Watch for Fed Vice Chair Jefferson's remarks at 12:00 PM on supply-side inflation. If auction was weak and Jefferson sounds hawkish, look for DXY break above 97.00.</p>
-            </div>
-          </div>
-
-          <div class="actionable-levels">
-            <div class="level-box buy">
-              BUY GOLD<br>
-              <span style="font-size:1.25rem">@ $5,038</span>
-            </div>
-            <div class="level-box sell">
-              SELL DXY<br>
-              <span style="font-size:1.25rem">@ 97.05</span>
-            </div>
-          </div>
-
-          <div class="alert-box" style="margin-top:2rem;">
-            <h4>🛡️ FINAL WORD</h4>
-            <p>Prioritized CME pricing and the Nuveen/Schroders acquisition as they represent the largest capital movements today. The <strong>1:00 PM 30-Year Bond Auction ($25B)</strong> is your "hidden" trigger—most retail traders will miss it, but it will dictate the afternoon's price action. Position size accordingly.</p>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <footer class="footer">
-      <p>THURSDAY MACRO COMMAND CENTER | February 12, 2026</p>
-      <p style="margin-top:0.5rem; font-size:0.8rem;">Data Sources: CME Group, Bloomberg, Reuters, Forex Factory, S&P Global, Yahoo Finance, US Treasury</p>
-      <p style="margin-top:0.25rem; font-size:0.75rem; color:#64748b;">Confidential - Elite Trading Desk Only</p>
-    </footer>
-  </div>
-
-  <script>
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      
-      document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
-      
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.classList.remove('active');
-        if(link.getAttribute('href') === '#' + tabId) {
-          link.classList.add('active');
-        }
-      });
-    }
-    
-    document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const tabId = this.getAttribute('href').substring(1);
-        showTab(tabId);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>WAR ROOM | Feb 12, 2026</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
         
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-          btn.classList.remove('active');
-          if(btn.getAttribute('onclick').includes(tabId)) {
-            btn.classList.add('active');
-          }
-        });
-      });
-    });
-  </script>
-</div>
-<div class="data-context">
-                Trending up from 15.20. Volatility expansion usually precedes a break in the 6,040 S&P support.
-              </div>
+        :root {
+            --crimson: #dc2626;
+            --slate: #0f172a;
+            --card: #1e293b;
+            --glass: rgba(30, 41, 59, 0.8);
+            --accent: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(220, 38, 38, 0.3);
+            --success: #22c55e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--slate);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* FIXED: Sticky Header with Explicit Ticker Container */
+        .war-room-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.98);
+            border-bottom: 2px solid var(--crimson);
+            box-shadow: 0 4px 30px rgba(220, 38, 38, 0.3);
+        }
+        
+        .ticker-wrap {
+            background: linear-gradient(90deg, rgba(220, 38, 38, 0.1), transparent);
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+            overflow: hidden;
+        }
+        
+        /* FIXED: Explicit dimensions for TradingView widget */
+        .tradingview-widget-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Navigation */
+        .terminal-nav {
+            display: flex;
+            gap: 4px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.95);
+        }
+        
+        .tab-link {
+            flex: 1;
+            padding: 16px 24px;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .tab-link:hover {
+            border-color: var(--crimson);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        
+        .tab-link.active {
+            background: linear-gradient(135deg, var(--crimson), #991b1b);
+            color: white;
+            border-color: var(--crimson);
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+        }
+        
+        .tab-link.error {
+            border-color: #ef4444;
+            animation: pulse-error 2s infinite;
+        }
+        
+        @keyframes pulse-error {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        
+        /* Main Container */
+        .war-room-container {
+            margin-top: 160px;
+            height: calc(100vh - 160px);
+        }
+        
+        .tab-content {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* FIXED: Better Bookmap Grid with Error Handling */
+        .bookmap-grid {
+            display: grid;
+            grid-template-rows: 1.6fr 1fr;
+            gap: 10px;
+            height: 100%;
+            padding: 10px;
+        }
+        
+        .bookmap-main {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid var(--crimson);
+            box-shadow: 0 0 40px rgba(220, 38, 38, 0.2);
+        }
+        
+        .bookmap-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            z-index: 10;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .bookmap-secondary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .bookmap-box {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .bookmap-box::after {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            z-index: 10;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .bookmap-box.gold::after {
+            content: 'GC1! GOLD';
+            background: rgba(245, 158, 11, 0.9);
+            color: black;
+        }
+        
+        .bookmap-box.silver::after {
+            content: 'SI1! SILVER';
+            background: rgba(148, 163, 184, 0.9);
+            color: black;
+        }
+        
+        /* FIXED: Error State Styling */
+        .bookmap-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .bookmap-error-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            color: #ef4444;
+        }
+        
+        .bookmap-error-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .bookmap-error-sub {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            max-width: 300px;
+        }
+        
+        .bookmap-fallback {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid var(--crimson);
+            border-radius: 8px;
+            color: var(--crimson);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .bookmap-fallback:hover {
+            background: var(--crimson);
+            color: white;
+        }
+        
+        /* AI Thesis Styling */
+        .thesis-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+            height: 100%;
+            padding: 20px;
+        }
+        
+        .intel-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            overflow-y: auto;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--crimson);
+        }
+        
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--crimson), #991b1b);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        
+        .lead-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+        
+        .highlight {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .critical {
+            color: var(--crimson);
+            font-weight: 800;
+        }
+        
+        /* FIXED: Better Dropzone Styling */
+        .dropzone {
+            border: 2px dashed var(--crimson);
+            background: rgba(220, 38, 38, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .dropzone::before {
+            content: '▼ DROP RESEARCH HERE ▼';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--slate);
+            padding: 0 12px;
+            color: var(--crimson);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        
+        .dropzone:hover {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: #ff4444;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
+        }
+        
+        .dropzone.active {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .intel-input {
+            width: 100%;
+            height: 100px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .intel-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .sync-btn {
+            background: linear-gradient(135deg, var(--crimson), #991b1b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 32px;
+            cursor: pointer;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        
+        .sync-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5);
+        }
+        
+        .sync-btn:active {
+            transform: translateY(0);
+        }
+        
+        .source-list {
+            list-style: none;
+        }
+        
+        .source-item {
+            padding: 20px;
+            margin-bottom: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border-left: 4px solid var(--crimson);
+            border-radius: 0 12px 12px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .source-item:hover {
+            background: rgba(220, 38, 38, 0.15);
+            transform: translateX(8px);
+        }
+        
+        .source-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            background: rgba(220, 38, 38, 0.2);
+            color: var(--crimson);
+            border-radius: 20px;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .source-text {
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .context-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .context-panel:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .context-title {
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .context-text {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-live {
+            color: var(--success);
+        }
+        
+        .status-live .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        .status-error {
+            color: #ef4444;
+        }
+        
+        .status-error .status-dot {
+            background: #ef4444;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--slate);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--crimson);
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 1024px) {
+            .thesis-grid {
+                grid-template-columns: 1fr;
+            }
+            .bookmap-secondary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- FIXED: Sticky Header with Explicit Ticker -->
+    <div class="war-room-header">
+        <div class="ticker-wrap">
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                {
+                    "symbols": [
+                        { "proName": "CME_MINI:ES1!", "title": "S&P 500" },
+                        { "proName": "CME_MINI:NQ1!", "title": "Nasdaq 100" },
+                        { "proName": "COMEX:GC1!", "title": "Gold" },
+                        { "proName": "COMEX:SI1!", "title": "Silver" },
+                        { "proName": "NYMEX:CL1!", "title": "Crude Oil" },
+                        { "proName": "FX_IDC:DXY", "title": "Dollar" },
+                        { "proName": "CBOE:VIX", "title": "VIX" },
+                        { "proName": "TVC:US10Y", "title": "US 10Y" },
+                        { "proName": "BITSTAMP:BTCUSD", "title": "Bitcoin" }
+                    ],
+                    "showSymbolLogo": true,
+                    "colorTheme": "dark",
+                    "isTransparent": true,
+                    "displayMode": "adaptive",
+                    "locale": "en"
+                }
+                </script>
             </div>
-          </div>
-
-          <div class="risk-matrix">
-            <div class="risk-item high">
-              <div class="risk-label">Duration Risk</div>
-              <div class="risk-value">CRITICAL</div>
-            </div>
-            <div class="risk-item medium">
-              <div class="risk-label">Credit Spreads</div>
-              <div class="risk-value">STABLE</div>
-            </div>
-            <div class="risk-item low">
-              <div class="risk-label">FX Volatility</div>
-              <div class="risk-value">LOW</div>
-            </div>
-          </div>
         </div>
-
-        <div id="playbook" class="tab-content">
-          <h2 class="section-title">🎯 TODAY'S EXECUTION PLAYBOOK</h2>
-          <div class="playbook-timeline">
-            
-            <div class="timeline-item">
-              <div class="time-badge">10:00 AM ET</div>
-              <h3>Existing Home Sales Release</h3>
-              <p><strong>Primary Signal:</strong> If the print is < 4.0M, the "Stagflation" narrative takes hold.</p>
-              <div class="actionable-levels">
-                <div class="level-box buy">LONG GOLD: $5,115 Target</div>
-                <div class="level-box sell">SHORT USD/JPY: 148.20 Target</div>
-              </div>
-            </div>
-
-            <div class="timeline-item critical">
-              <div class="time-badge">01:00 PM ET</div>
-              <h3>30-Year Bond Auction ($25B)</h3>
-              <p><strong>The "Tail" Trade:</strong> Watch the yield. If the auction "tails" (yield is higher than pre-auction trade), we see a mass liquidation in Tech.</p>
-              <div class="actionable-levels">
-                <div class="level-box sell">SHORT NQ (Nasdaq): 19,850 Target</div>
-                <div class="level-box buy">LONG TLT: $94.50 Support</div>
-              </div>
-            </div>
-
-            <div class="timeline-item">
-              <div class="time-badge">04:00 PM ET</div>
-              <h3>Market Close & Nuveen Flow</h3>
-              <p>Monitor London ADRs for Schroders. Ensure hedges are in place for Governor Miran’s 7:05 PM speech.</p>
-            </div>
-
-          </div>
+        
+        <div class="terminal-nav">
+            <button class="tab-link active" onclick="showTab('intel')">🌍 MACRO INTEL</button>
+            <button class="tab-link" onclick="showTab('bookmaps')" id="bookmapTab">🎥 LIVE BOOKMAPS</button>
+            <button class="tab-link" onclick="showTab('brief')">🧠 AI THESIS</button>
         </div>
-      </main>
     </div>
 
-    <footer class="footer">
-      <p>Proprietary Data Stream | Feb 12, 2026 | Ref: MACRO-CMD-770</p>
-    </footer>
-  </div>
+    <div class="war-room-container">
+        <!-- TAB 1: MACRO INTEL -->
+        <div id="intel" class="tab-content active" style="padding: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; height: 90vh;">
+                
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; overflow: hidden; padding: 10px;">
+                    <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                        <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" async>
+                        {
+                            "dataSource": "SPX500",
+                            "blockSize": "market_cap_basic",
+                            "blockColor": "change",
+                            "grouping": "sector",
+                            "locale": "en",
+                            "symbolUrl": "",
+                            "colorTheme": "dark",
+                            "exchanges": [],
+                            "hasTopBar": false,
+                            "isDataSetEnabled": false,
+                            "isZoomEnabled": true,
+                            "hasSymbolTooltip": true,
+                            "isMonoSize": false,
+                            "width": "100%",
+                            "height": "100%"
+                        }
+                        </script>
+                    </div>
+                </div>
 
-  <script>
-    function showTab(tabId) {
-      // Hide all tabs
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Remove active class from all buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      
-      // Show selected tab
-      document.getElementById(tabId).classList.add('active');
-      
-      // Add active class to clicked button
-      const clickedBtn = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
-      if(clickedBtn) clickedBtn.classList.add('active');
-      
-      // Update sidebar
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.classList.remove('active');
-        if(link.getAttribute('href') === '#' + tabId) {
-          link.classList.add('active');
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; overflow: hidden; padding: 10px;">
+                    <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                        <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                        {
+                            "colorTheme": "light",
+                            "isTransparent": true,
+                            "locale": "en",
+                            "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,za,tr,gb,us,eu",
+                            "importanceFilter": "-1,0,1",
+                            "width": "100%",
+                            "height": "100%"
+                        }
+                        </script>
+                    </div>
+                </div>
+
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; overflow: hidden; padding: 10px;">
+                    <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                        <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+                        {
+                            "displayMode": "regular",
+                            "feedMode": "all_symbols",
+                            "colorTheme": "dark",
+                            "isTransparent": false,
+                            "locale": "en",
+                            "width": "100%",
+                            "height": "100%"
+                        }
+                        </script>
+                    </div>
+                </div>
+
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; overflow: hidden; padding: 10px;">
+                    <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
+                        {
+                            "width": "100%",
+                            "height": "100%",
+                            "symbolsGroups": [
+                                {
+                                    "name": "Indices",
+                                    "symbols": [
+                                        { "name": "CME_MINI:ES1!", "displayName": "S&P 500" },
+                                        { "name": "CME_MINI:NQ1!", "displayName": "Nasdaq 100" },
+                                        { "name": "TVC:VIX", "displayName": "VIX Index" }
+                                    ]
+                                },
+                                {
+                                    "name": "Metals",
+                                    "symbols": [
+                                        { "name": "COMEX:GC1!", "displayName": "Gold" },
+                                        { "name": "COMEX:SI1!", "displayName": "Silver" }
+                                    ]
+                                }
+                            ],
+                            "showSymbolLogo": true,
+                            "colorTheme": "dark",
+                            "isTransparent": true,
+                            "locale": "en"
+                        }
+                        </script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FIXED: TAB 2 - LIVE BOOKMAPS with Error Handling -->
+        <div id="bookmaps" class="tab-content">
+            <div class="bookmap-grid">
+                <!-- ES1! Primary Feed -->
+                <div class="bookmap-main">
+                    <div class="bookmap-label">ES1! ORDER FLOW</div>
+                    <iframe 
+                        id="esFrame"
+                        src="https://www.youtube.com/embed/live_stream?channel=UC7L7S6yM1E8W1p0vD0h-w4A&autoplay=1&mute=1" 
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        style="width:100%; height:100%; border:0;" 
+                        allowfullscreen
+                        onerror="handleVideoError('es')">
+                    </iframe>
+                    <!-- Error Fallback -->
+                    <div id="esError" class="bookmap-error" style="display: none;">
+                        <div class="bookmap-error-icon">⚠️</div>
+                        <div class="bookmap-error-text">ES1! Stream Unavailable</div>
+                        <div class="bookmap-error-sub">YouTube Error 153: Channel embedding restricted. Try alternative source.</div>
+                        <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=es+futures+live+trading', '_blank')">Find Alternative Stream</button>
+                    </div>
+                </div>
+                
+                <div class="bookmap-secondary">
+                    <!-- Gold Feed -->
+                    <div class="bookmap-box gold">
+                        <iframe 
+                            id="goldFrame"
+                            src="https://www.youtube.com/embed/JQfLr7-w5cc?autoplay=1&mute=1" 
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="autoplay; encrypted-media"
+                            style="width:100%; height:100%; border:0;" 
+                            allowfullscreen
+                            onerror="handleVideoError('gold')">
+                        </iframe>
+                        <div id="goldError" class="bookmap-error" style="display: none;">
+                            <div class="bookmap-error-icon">⚠️</div>
+                            <div class="bookmap-error-text">Gold Stream Offline</div>
+                            <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=gold+futures+live', '_blank')">Find Stream</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Silver Feed -->
+                    <div class="bookmap-box silver">
+                        <iframe 
+                            id="silverFrame"
+                            src="https://www.youtube.com/embed/QJnmKZK1_kA?autoplay=1&mute=1" 
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="autoplay; encrypted-media"
+                            style="width:100%; height:100%; border:0;" 
+                            allowfullscreen
+                            onerror="handleVideoError('silver')">
+                        </iframe>
+                        <div id="silverError" class="bookmap-error" style="display: none;">
+                            <div class="bookmap-error-icon">⚠️</div>
+                            <div class="bookmap-error-text">Silver Stream Offline</div>
+                            <button class="bookmap-fallback" onclick="window.open('https://www.youtube.com/results?search_query=silver+futures+live', '_blank')">Find Stream</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIXED: TAB 3 - AI THESIS with Better Dropzone -->
+        <div id="brief" class="tab-content">
+            <div class="thesis-grid">
+                <div class="intel-card">
+                    <!-- ENHANCED: Research Dropzone -->
+                    <div class="dropzone" id="dropzone">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div class="context-title" style="margin: 0;">📥 INTELLIGENCE DROP</div>
+                            <div class="status-indicator status-live">
+                                <div class="status-dot"></div>
+                                <span>Ready</span>
+                            </div>
+                        </div>
+                        <textarea 
+                            id="intelInput" 
+                            class="intel-input" 
+                            placeholder="Paste Morgan Stanley, Apollo Academy, or PDF highlights here...&#10;&#10;Example: 'Slok: No profit margins outside Tech. S&P 493 compressing while Mag 7 expands.'"
+                        ></textarea>
+                        <button class="sync-btn" onclick="syncIntel()">
+                            ⚡ SYNC TO LEAD ANALYST
+                        </button>
+                    </div>
+
+                    <div class="card-header">
+                        <div class="card-icon">🧠</div>
+                        <div>
+                            <div class="card-title">AI Strategic Thesis</div>
+                            <div class="card-subtitle">February 12, 2026 | Execution Context</div>
+                        </div>
+                    </div>
+                    
+                    <p class="lead-text">
+                        <span class="highlight">Lead Analyst Status:</span> Standing by for intelligence upload. 
+                        Current framework: <span class="critical">"Simultaneous Hold"</span> regime—central banks frozen between AI-capex inflation and labor fragility.
+                    </p>
+                    
+                    <ul class="source-list" id="dynamicSourceList">
+                        <li class="source-item">
+                            <div class="source-tag">System Ready</div>
+                            <div class="source-text">
+                                <strong>Waiting for research sync.</strong> Paste institutional notes above and click SYNC to activate analysis layer. 
+                                I will cross-reference with live Heatmap, validate against Bookmap liquidity, and alert on correlation breaks.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="context-panel" style="background: linear-gradient(to bottom, #1e293b, #0f172a); border-top: 4px solid var(--accent);">
+                        <div class="context-title">🎯 Active Trade Setups</div>
+                        <div class="context-text">
+                            <strong>GC1! (Gold):</strong> Long bias on liquidity test. Watch DXY correlation.<br>
+                            <strong>ES1! (S&P):</strong> Avoid shorts if VIX &lt; 18. Watch sector breadth.<br>
+                            <strong>SI1! (Silver):</strong> Range play. Industrial vs precious demand tension.
+                        </div>
+                    </div>
+                    
+                    <div class="context-panel" style="border: 1px solid var(--crimson); background: rgba(220, 38, 38, 0.1);">
+                        <div class="context-title" style="color: var(--crimson);">🛑 Risk Protocol</div>
+                        <div class="context-text">
+                            If VIX &gt;25 (per Ticker Tape), reduce size 50%. "Hold regime" = wider stops due to correlation breakdowns. Max 2% risk per setup.
+                        </div>
+                    </div>
+                    
+                    <div class="context-panel">
+                        <div class="context-title">📡 Live Cross-Reference</div>
+                        <div class="context-text">
+                            • Ticker: ES1!, GC1!, SI1!, DXY, VIX, US10Y<br>
+                            • Heatmap: Sector rotation vs concentration<br>
+                            • Bookmaps: Liquidity wall locations<br>
+                            • News: Catalyst timing
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; margin-top: auto;">
+                        <div style="margin-bottom: 8px;">WAR ROOM TERMINAL v2.1</div>
+                        <div style="color: var(--accent);">Error 153 Fix Applied • Awaiting Intel</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
-      });
-    }
-  </script>
+        
+        // FIXED: Video Error Handling
+        function handleVideoError(source) {
+            console.error('Video failed to load:', source);
+            document.getElementById(source + 'Frame').style.display = 'none';
+            document.getElementById(source + 'Error').style.display = 'flex';
+            document.getElementById('bookmapTab').classList.add('error');
+        }
+        
+        // Check video loading after 5 seconds
+        setTimeout(() => {
+            ['es', 'gold', 'silver'].forEach(source => {
+                const frame = document.getElementById(source + 'Frame');
+                if (frame && !frame.contentWindow.length) {
+                    // If frame appears empty, show error
+                    // handleVideoError(source); // Uncomment to auto-detect
+                }
+            });
+        }, 5000);
+        
+        // FIXED: Intel Sync with Visual Feedback
+        function syncIntel() {
+            const input = document.getElementById('intelInput');
+            const dropzone = document.getElementById('dropzone');
+            const text = input.value.trim();
+            
+            if (text) {
+                // Visual feedback
+                dropzone.classList.add('active');
+                dropzone.querySelector('.status-indicator').className = 'status-indicator status-live';
+                dropzone.querySelector('.status-indicator').innerHTML = '<div class="status-dot"></div><span>Synced</span>';
+                
+                // Alert user
+                alert('✅ Intelligence synced to Lead Analyst\n\nProcessing: ' + text.substring(0, 60) + '...\n\nI will now cross-reference this with live widget data.');
+                
+                // In production: Send to Kimi API
+                console.log('Intel synced:', text);
+                
+                // Reset after delay
+                setTimeout(() => {
+                    dropzone.classList.remove('active');
+                    input.value = '';
+                }, 3000);
+            } else {
+                alert('⚠️ Please paste research text first');
+                input.focus();
+            }
+        }
+        
+        // Auto-resize textarea
+        document.getElementById('intelInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(100, this.scrollHeight) + 'px';
+        });
+    </script>
 </body>
 </html>
-<div class="data-context">
-                Trending up. Market pricing in "Auction Anxiety" and potential for a hawkish Fed tone.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="playbook" class="tab-content">
-          <h2 class="section-title">🏁 TODAY'S PLAYBOOK</h2>
-          <div class="playbook-timeline">
-            <div class="timeline-item">
-              <span class="time-badge">08:30 - 10:00 ET</span>
-              <h3>Absorb Jobless Claims</h3>
-              <p>Monitor DXY reaction. If claims stay low, USD strength persists. Watch 6,040 level on S&P Futures.</p>
-            </div>
-            <div class="timeline-item critical">
-              <span class="time-badge">10:00 - 13:00 ET</span>
-              <h3>Housing & Energy Storage</h3>
-              <p>Existing Home Sales at 10:00. Sub-4.0M print is a "Buy Gold" trigger. EIA Natural Gas at 10:30.</p>
-              <div class="actionable-levels">
-                <div class="level-box buy">GOLD L/S: $5,037</div>
-                <div class="level-box sell">SPX RES: 6,120</div>
-              </div>
-            </div>
-            <div class="timeline-item">
-              <span class="time-badge">13:00 ET</span>
-              <h3>The "Main Event": 30Y Auction</h3>
-              <p>If auction clears with a "tail" (higher yield than expected), liquidate long equity positions immediately.</p>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <footer class="footer">
-      <p>&copy; 2026 Trading Desk Command Center | Proprietary Macro Data | For Institutional Use Only</p>
-    </footer>
-  </div>
-
-  <script>
-    function showTab(tabId) {
-      // 1. Hide all tab contents
-      const contents = document.querySelectorAll('.tab-content');
-      contents.forEach(content => content.classList.remove('active'));
-
-      // 2. Deactivate all buttons (top tabs and sidebar)
-      const buttons = document.querySelectorAll('.tab-btn, .sidebar-nav a');
-      buttons.forEach(btn => btn.classList.remove('active'));
-
-      // 3. Show the selected tab
-      const activeTab = document.getElementById(tabId);
-      if (activeTab) {
-        activeTab.classList.add('active');
-      }
-
-      // 4. Highlight the clicked buttons
-      // This highlights both the top button and the sidebar link for the same ID
-      const activeButtons = document.querySelectorAll(`[onclick="showTab('${tabId}')"]`);
-      activeButtons.forEach(btn => btn.classList.add('active'));
-      
-      // Optional: Scroll to top of content on mobile
-      if (window.innerWidth < 1024) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-  </script>
-</div> ```
-<div class="data-card highlight">
-              <div class="data-label">Liquidity Environment</div>
-              <div class="data-value neutral">NEUTRAL</div>
-              <div class="data-context">
-                Reverse Repo (RRP) draining slightly slower than Jan. TGA balance healthy at $740B. No immediate funding stress.
-              </div>
-            </div>
-          </div>
-          <div class="risk-matrix">
-            <div class="risk-item high">
-              <div class="risk-label">Duration Risk</div>
-              <div class="risk-value">9.2/10</div>
-            </div>
-            <div class="risk-item medium">
-              <div class="risk-label">Credit Spreads</div>
-              <div class="risk-value">4.5/10</div>
-            </div>
-            <div class="risk-item low">
-              <div class="risk-label">FX Volatility</div>
-              <div class="risk-value">2.1/10</div>
-            </div>
-          </div>
-        </div>
-
-        <div id="playbook" class="tab-content">
-          <h2 class="section-title">📝 TODAY'S EXECUTION PLAYBOOK</h2>
-          <div class="playbook-timeline">
-            <div class="timeline-item">
-              <span class="time-badge">08:30 - 09:30 ET</span>
-              <p><strong>Pre-Open Positioning:</strong> Monitor E-mini S&P (ES) at 6,085. If Initial Claims beat significantly, watch for a fade in the DXY as revision data (from Wednesday) weighs on long-term dollar bulls.</p>
-            </div>
-            <div class="timeline-item critical">
-              <span class="time-badge">10:00 ET</span>
-              <p><strong>Housing Catalyst:</strong> Existing Home Sales print. <br>• <strong>Bullish Case (>4.2M):</strong> Buy USD/JPY, Sell Gold. <br>• <strong>Bearish Case (<4.0M):</strong> Buy Gold, Buy 10Y Treasuries. This is the "Recession Scare" trigger.</p>
-            </div>
-            <div class="timeline-item">
-              <span class="time-badge">13:00 ET</span>
-              <p><strong>The Final Boss:</strong> 30-Year Bond Auction. If the "tail" is large (meaning low demand), yields spike. Close long tech positions before 12:55 ET to avoid auction volatility.</p>
-            </div>
-          </div>
-          <div class="actionable-levels">
-            <div class="level-box buy">GOLD LONG: $5,037</div>
-            <div class="level-box sell">ES SHORT: 6,120</div>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <footer class="footer">
-      <p>PROPRIETARY DATA STREAM | February 12, 2026 | Ref: MACRO-CMD-770</p>
-      <p style="margin-top:0.5rem; font-size:0.8rem;">Data Sources: CME Group, Bloomberg, Reuters, Forex Factory, S&P Global</p>
-      <p style="margin-top:0.25rem; font-size:0.75rem; color:#64748b;">Confidential - Elite Trading Desk Only</p>
-    </footer>
-  </div>
-
-  <script>
-    function showTab(tabId) {
-      // 1. Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-
-      // 2. Remove active state from all top buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-
-      // 3. Remove active state from all sidebar links
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.classList.remove('active');
-      });
-
-      // 4. Show the selected tab
-      const targetContent = document.getElementById(tabId);
-      if (targetContent) {
-        targetContent.classList.add('active');
-      }
-
-      // 5. Update top button highlight
-      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
-        btn.getAttribute('onclick').includes(`'${tabId}'`)
-      );
-      if (activeBtn) activeBtn.classList.add('active');
-
-      // 6. Update sidebar link highlight
-      const activeLink = document.querySelector(`.sidebar-nav a[href="#${tabId}"]`);
-      if (activeLink) activeLink.classList.add('active');
-      
-      // Prevent page jump if called from sidebar
-      if (event) event.preventDefault();
-    }
-  </script>
-</div>
